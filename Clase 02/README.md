@@ -178,6 +178,130 @@ Desventajas:
 
 - - - 
 
+## **Support Vector Machine**
+
+El siguiente gráfico representa dos grupos de puntos de clases distintas, que se intenta separar:
+
+<img src="../_src/assets/svm.jpg" height="300"><br>
+
+Para hacerlo, la solución más sencilla puede ser con una recta, sin embargo, existen infinitas rectas posibles que separan perfectamente los grupos de datos. Además, el mejor criterio para seleccionar una de esas rectas, es escoger una línea que capture el patrón general en los datos de entrenamiento, así cabe una buena posibilidad de que separe bien los datos de prueba ó nunca vistos.
+
+Es necesario entonces: 
+* Buscar rectas que clasifiquen correctamente los datos de entrenamiento.
+* Entre todas estas rectas, elegir la que tenga la mayor distancia <b>d</b>, a los puntos más cercanos a ella.
+
+Los puntos más cercanos que identifican esta recta se conocen como <b>vectores de apoyo</b> (Support Vectors). Y la región que definen alrededor de la línea se conoce como el <b>Margen</b>.
+
+<img src="../_src/assets/svm2.jpg" height="300"><br>
+
+Los datos que pueden ser separados por una recta (o en general, un <b>hiperplano</b>) se conocen como datos linealmente separables. El hiperplano actúa como un clasificador lineal. <b>SVM es extensible para n dimensiones</b>. En este caso, la recta de decisión se transformó en un <b>plano de decisión</b>, por tratarse de un problema de <b>3 dimensiones</b>.
+
+<img src="../_src/assets/svm3.jpg" height="300"><br>
+
+En la realidad, los datos NO suelen ser separables con una recta. Aunque tampoco se quiere descartar por completo al clasificador lineal, ya que parece adecuado para el problema, excepto por algunos puntos erróneos.
+
+<img src="../_src/assets/svm4.jpg" height="300"><br>
+
+En SVM, se puede especificar cuántos errores estamos dispuestos a aceptar mediante un parámetro llamado C, lo que permite dictaminar la relación entre:
+* Tener un amplio margen.
+* Clasificar correctamente la mayor cantidad de puntos de entrenamiento, dar un valor más alto de C implica que se esperan menos errores en los datos de entrenamiento.
+
+<img src="../_src/assets/svm5.jpg" height="500"><br>
+
+* Se puede observar como la línea se inclina a medida que aumenta el valor de C. 
+* A valores altos, intenta acomodar las etiquetas de la mayoría de los puntos rojos presentes en la parte inferior derecha de los gráficos. 
+* Esto probablemente no es lo que queremos para los datos de prueba. 
+* El primer gráfico con C=0,01 parece captar mejor la tendencia general, aunque adolece de una menor precisión en los datos de entrenamiento en comparación con los valores más altos de C.
+
+<img src="../_src/assets/svm6.jpg" height="300"><br>
+
+* No siempre es posible separar los datos con una recta, plano o hiperplano. En esos casos es posible aumentar la dimensionalidad de los datos, agregando nuevas dimensiones que permitan aplicar clasificadores lineales.
+* En este caso, no podemos separar los datos con un recta, entonces lo que hacemos es aumentar de 2 a 3 dimensiones, mediante una proyección a un nuevo espacio de 3D.
+* Lo mejor posible con la recta del ejemplo, es un 75% de precisión en los datos de entrenamiento
+
+Esto se puede resolver entonces, agregando una dimensión más a los datos, por ejemplo de alguna de las siguientes formas:
+
+<img src="../_src/assets/svm7.jpg" height="100"><br>
+
+Ahora, los datos proyectados con la nueva variable, sí pueden quedar separados:
+
+<img src="../_src/assets/svm8.jpg" height="200"><br>
+
+Para conocer el nuevo límite de separación, se mapea el hiperplano al espacio original.
+* La forma del límite de separación en el espacio original depende de la proyección. 
+* En el espacio proyectado, esto es siempre un hiperplano.
+* Cuando se mapea de vuelta al espacio original, el límite de separación ya no es una recta. Esto también es cierto para los vectores de margen y de soporte. 
+* En cuanto a nuestra intuición visual, tienen sentido en el espacio proyectado.
+
+Entonces...
+1) Para datos linealmente separables, SVM trabaja muy bien.
+2) Para los datos que son casi linealmente separables, SVM puede funcionar bastante bien usando el valor correcto de C.
+3) Para los datos que no son linealmente separables, podemos proyectar los datos a un espacio en el que sean perfectamente/casi linealmente separables, lo que reduce el problema a 1 ó 2.
+
+Una gran parte de lo que hace que SVM sea universalmente aplicable es proyectar a dimensiones superiores. Y aquí es donde entran los <b>kernels</b>…
+
+Un Kernel es una forma de calcular el <b>producto punto</b> de dos vectores x e y en algún espacio de características (posiblemente de mayor dimensionalidad), por lo que las funciones del kernel a veces se denominan “producto punto generalizado”.
+
+Supongamos que tenemos un mapeo que trae nuestros vectores a algún espacio de características.
+Un kernel es una función K que corresponde a este producto punto.			
+
+Ejemplo: Definimos un mapeo polinómico a un espacio 3D:
+
+<img src="../_src/assets/svm9.jpg" height="100"><br>
+
+Entonces la función kernel asociada es:
+
+<img src="../_src/assets/svm10.jpg" height="50"><br>
+
+Normalmente no se define una proyección específica para los datos. En su lugar, se selecciona entre kernels disponibles, ajustándolos en algunos casos, para encontrar el que mejor se adapte.
+Por supuesto que nada nos impide definir nuestros propios kernels, o realizar la 
+proyección nosotros mismos, pero en muchos casos no es necesario. 
+
+<img src="../_src/assets/svm11.jpg" height="200"><br>
+
+Entonces, por ejemplo, creamos una tercer variable que esté dada por la función X elevado al cuadrado, lo cual, como puede verse, logra separar las dos clases…
+
+<img src="../_src/assets/svm12.jpg" height="200"><br>
+
+En el siguiente ejemplo, tenemos que la función x*y es la que mejor separa los puntos rojos de los azules:
+
+<img src="../_src/assets/svm13.jpg" height="200"><br>
+
+Algunos Kernels disponibles:
+
+<img src="../_src/assets/svm14.jpg" height="250"><br>
+
+Implementación con Scikit-Learn:
+
+<img src="../_src/assets/svm15.jpg" height="300"><br>
+
+### ¿Qué pasa si tenemos más de dos clases en SVM?
+
+* En un problema con K clases, resolvemos K problemas binarios.
+* Cada SVM está entrenada para separar una clase del resto de los patrones.
+* Para una nueva instancia x, se corren los K clasificadores y se retorna la clase que tenga una función de decisión con el valor más alto (la clase con mayor confianza).
+
+<img src="../_src/assets/svm16.jpg" height="300"><br>
+
+Conclusiones:
+
+SVM es un algoritmo de aprendizaje supervisado que se propone encontrar el hiperplano que mejor separe los datos, tal que se maximice el margen. 
+
+* Hiperparámetros: C y Kernels.
+* Ventajas: 
+	* Eficaz en espacios de alta dimensión (incluso cuando son más que el número de instancias!).
+	* Eficiente en memoria (sólo los vectores de soporte definen el hiperplano frontera).
+	* Los kernels lo hacen muy versátil.
+* Desventajas: 
+	* Al usar kernels, hay que tener mucho cuidado de no caer en overfitting.
+	* Funciona bien sólo para clasificación.
+
+Enlaces recomendados: 
+* [Support Vector Machines: A Visual Explanation with Sample Python Code] (https://www.youtube.com/watch?v=N1vOgolbjSc)
+* (https://medium.com/datadriveninvestor/support-vector-machines-ae0ff2375479)
+* (https://towardsdatascience.com/kernel-function-6f1d2be6091)
+* (https://medium.com/@sitarzkonrad/interactive-3d-k-means-clustering-in-jupyter-1038470f687e)
+
 Con los contenidos teóricos que has visto en esta clase, ahora es momento de pasar a la práctica e instanciar tus primeros modelos predictivos de árbol de decisión y K-NN.
 
 ![Homero](https://c.tenor.com/noQKXza6-GYAAAAC/simpsons-homer.gif)
